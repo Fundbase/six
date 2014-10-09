@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE XRF SYSTEM "/apid/xml/xrf.dtd">
+<XRF r="8.8.0" c="" g="" u="dummy_login" k="789949403" d="20141008" t="215308">
+  <LCVL>
+    <LCV k="LU0866838575" f="1" sc="ISIN" l="20209492,9760,814"/>
+  </LCVL>
+</XRF>

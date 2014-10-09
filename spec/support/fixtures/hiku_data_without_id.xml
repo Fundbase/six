@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE XRF SYSTEM "/apid/xml/xrf.dtd">
+<XRF r="8.8.0" c="" g="" u="dummy_login" k="1242373846" d="20141008" t="203150">
+  <A k="e0008" n="1" v="Missing mandatory argument"/>
+</XRF>

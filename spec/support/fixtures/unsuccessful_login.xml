@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE XRF SYSTEM "/apid/xml/xrf.dtd">
+<XRF r="8.8.0" c="" g="" u="CI43937-username" k="" d="20141008" t="192328">
+  <A k="e0029" n="1" v="No session could be retrieved ( invalid user or password.. ) errno:6"/>
+</XRF>

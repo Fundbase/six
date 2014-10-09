@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE XRF SYSTEM "/apid/xml/xrf.dtd">
+<XRF r="8.8.0" c="" g="" u="dummy_login" k="702418842" d="20141008" t="203026">
+  <IL k="1">
+    <I k="1396260,363,405">
+      <A k="e0015" v="Got no HIKU data for listing: 1396260,363,405"/>
+    </I>
+  </IL>
+</XRF>
