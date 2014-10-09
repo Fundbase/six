@@ -1,18 +1,19 @@
 module SIX
   module Errorable
-    def has_error?
-      errorable_object['A'] &&  errorable_object['A']['k'] && errorable_object['A']['k'].match(/\Ae\d+\z/)
+    def error?
+      errorable_object['A'] && errorable_object['A']['k'] &&
+          errorable_object['A']['k'].match(/\Ae\d+\z/)
     end
 
     def raise_error!
-      raise SIX::Error, error
+      fail SIX::Error, error
     end
 
     def error
       errorable_object['A']['v']
     end
 
-  private
+    private
 
     def errorable_object
       self

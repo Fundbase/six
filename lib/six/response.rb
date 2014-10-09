@@ -1,4 +1,6 @@
 module SIX
+  # A wrapper for HTTParty::Response which
+  # provide some convenience methods.
   class Response < SimpleDelegator
     include Errorable
 
@@ -8,8 +10,8 @@ module SIX
     end
 
     def validate!
-      raise SIX::Error, body if code != 200
-      raise_error! if has_error?
+      fail SIX::Error, body if code != 200
+      raise_error! if error?
     end
 
     def [](key)

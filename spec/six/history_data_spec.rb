@@ -8,7 +8,7 @@ RSpec.describe SIX::Price do
       expect(price.value).to eq '12.125'
     end
   end
-  
+
   describe '#type' do
     it 'is a last price' do
       expect(price.type).to eq SIX::Price::LAST_PRICE

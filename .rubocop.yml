@@ -1,0 +1,15 @@
+AllCops:
+  Includes:
+    - Rakefile
+    - config.ru
+  Excludes:
+    - db/**
+    - config/**
+    - script/**
+    - !ruby/regexp /old_and_unused\.rb$/
+    - bin/**
+  RunRailsCops: false
+LineLength:
+  Max: 100
+MethodLength:
+  Max: 12

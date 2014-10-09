@@ -10,7 +10,7 @@ module SIX
       data['k']
     end
 
-  private
+    private
 
     def errorable_object
       data
