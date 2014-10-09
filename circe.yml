@@ -3,3 +3,7 @@ machine:
     version: ruby-2.1.2
   environment:
     RUBYOPT: -Ku
+test:
+  override:
+    - rubocop
+    - rspec
