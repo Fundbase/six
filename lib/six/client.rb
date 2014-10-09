@@ -16,14 +16,20 @@ module SIX
                   date_from: 10.days.ago,
                   date_to: Date.current)
 
-      response = request('getHikuData', ik: listing_identifier, pts: price_type_set, pk: price_quote_selection,
-                         date_from: date_from, date_to: date_to, adj: adjustment)
+      response = request('getHikuData',
+                         ik: listing_identifier,
+                         pts: price_type_set,
+                         pk: price_quote_selection,
+                         date_from: date_from,
+                         date_to: date_to,
+                         adj: adjustment)
+
       InstrumentList.new(response['IL']).instruments.first
     end
     alias_method :prices, :hiku_data
 
     def identify_instrument(isin)
-      response = request('getListingID',ks: 'ISIN', k1: isin)['LCVL']['LCV']
+      response = request('getListingID', ks: 'ISIN', k1: isin)['LCVL']['LCV']
       response['f'].to_i == 1 ? response['l'] : nil
     end
 
@@ -31,7 +37,7 @@ module SIX
       request(method.to_s.camelize(:lower), query)
     end
 
-  private
+    private
 
     # @return [String] session ID.
     def login(pwd)
@@ -56,10 +62,10 @@ module SIX
     def format(query)
       query.map do |key, value|
         formatted = case value
-                      when Time, Date, DateTime
-                        value.strftime('%d.%m.%Y')
-                      else
-                        value
+                    when Time, Date, DateTime
+                      value.strftime('%d.%m.%Y')
+                    else
+                      value
                     end
         [key, formatted]
       end.to_h

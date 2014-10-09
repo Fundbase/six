@@ -20,7 +20,7 @@ RSpec.describe SIX::HistoryList do
 
   describe '#has_history_data?' do
     it 'returns true if history data is present' do
-      expect(history_list.has_history_data?).to be true
+      expect(history_list.history_data?).to be true
     end
   end
 end

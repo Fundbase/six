@@ -1,5 +1,7 @@
 require 'sinatra/base'
 
+# A service emulating SIX API
+# for testing purposes.
 class FakeSIX < Sinatra::Base
   UI  = 'dummy_login'
   PWD = 'dummy_password'
@@ -11,20 +13,24 @@ class FakeSIX < Sinatra::Base
   end
 
   def login
-    xml_response (valid_credentials? ? 'successful_login' : 'unsuccessful_login')
+    if valid_credentials?
+      xml_response('successful_login')
+    else
+      xml_response('unsuccessful_login')
+    end
   end
 
-  def get_hiku_data
-    if listing_id.blank?
+  def hiku_data
+    if id.blank?
       xml_response 'hiku_data_without_id'
-    elsif listing_id == LISTING_ID
+    elsif id == LISTING_ID
       xml_response 'hiku_data'
     else
       xml_response 'hiku_data_with_invalid_id'
     end
   end
 
-  def get_listing_id
+  def listing_id
     if isin.blank?
       xml_response 'listing_id_without_isin'
     elsif isin == ISIN
@@ -34,13 +40,13 @@ class FakeSIX < Sinatra::Base
     end
   end
 
-private
+  private
 
   def method_name
-    request[:method].underscore
+    request[:method].underscore.sub(/\Aget_/, '')
   end
 
-  def listing_id
+  def id
     params[:ik]
   end
 

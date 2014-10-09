@@ -6,10 +6,10 @@ module SIX
 
     # @return [Array<SIX::HistoryData>]
     def history_data
-      Array.wrap(data['HD']).map { |hd| HistoryData.new(hd)}
+      Array.wrap(data['HD']).map { |hd| HistoryData.new(hd) }
     end
 
-    def has_history_data?
+    def history_data?
       data.try(:has_key?, 'HD')
     end
   end

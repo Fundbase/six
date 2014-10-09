@@ -1,7 +1,7 @@
 module SIX
   HistoryData = Struct.new(:data) do
     def prices
-      Array.wrap(data['P']).map { |p| Price.new(p)}
+      Array.wrap(data['P']).map { |p| Price.new(p) }
     end
 
     def last_price
