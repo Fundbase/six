@@ -9,6 +9,7 @@ module SIX
       @id = login(pwd)
     end
 
+    # rubocop:disable Metrics/ParameterLists, Metrics/MethodLength
     def hiku_data(listing_identifier,
                   price_type_set: Price::TypeSet::STANDARD,
                   price_quote_selection: Price::LAST_PRICE,
