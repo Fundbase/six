@@ -29,11 +29,16 @@ module SIX
         currency_code = six_currency.find_code(fund_class[:currency])
         valor_number = identify_instrument(fund_class[:isin]).valor
         markets_ids = fetch_markets(valor_number, currency_code)
-        instruments = SIX::InstrumentList.new(valor_number, currency_code, markets_ids)
-        prices = fetch_prices(instruments)
-        result[fund_class[:id]] = SIX::PriceList.new(prices).most_updated
+        instruments_list = SIX::InstrumentList.new
+        instruments_list.generate_instruments(valor_number, currency_code, markets_ids)
+        result[fund_class[:id]] = fetch_prices(instruments_list).most_updated
       end
       result
+    end
+
+    def update_prices_with_instruments(instruments_text)
+      instruments = SIX::InstrumentList.new(instruments_text)
+      fetch_prices(instruments)
     end
 
     def fetch_markets(valor_number, currency_code)
@@ -49,7 +54,8 @@ module SIX
         pk: '12,0,0',  #12,0,0 means return price value only according to table 701
         psk: 'none',
         })
-      request('getListingData', params)['IL']['I']
+      prices = request('getListingData', params)['IL']['I']
+      SIX::PriceList.new(prices)
     end
 
 
