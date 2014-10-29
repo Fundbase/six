@@ -9,34 +9,50 @@ module SIX
       @id = login(pwd)
     end
 
-    # rubocop:disable Metrics/ParameterLists, Metrics/MethodLength
-    def hiku_data(listing_identifier,
-                  price_type_set: Price::TypeSet::STANDARD,
-                  price_quote_selection: Price::LAST_PRICE,
-                  adjustment: Adjustment::ABSOLUTE,
-                  date_from: 10.days.ago,
-                  date_to: Date.current)
-
-      response = request('getHikuData',
-                         ik: listing_identifier,
-                         pts: price_type_set,
-                         pk: price_quote_selection,
-                         date_from: date_from,
-                         date_to: date_to,
-                         adj: adjustment)
-
-      InstrumentList.new(response['IL']).instruments.first
-    end
-    alias_method :prices, :hiku_data
 
     def identify_instrument(isin)
       response = request('getListingID', ks: 'ISIN', k1: isin)['LCVL']['LCV']
-      response['f'].to_i == 1 ? response['l'] : nil
+      response['f'].to_i == 1 ? SIX::Instrument.new(response['l']) : nil
     end
 
     def method_missing(method, query = {})
       request(method.to_s.camelize(:lower), query)
     end
+
+    # rubocop:disable Metrics/ParameterLists, Metrics/MethodLength
+
+    def first_time_retreive_prices(fund_classes)
+      result = {}
+      six_currency = SIX::Currency.new
+      fund_classes.each do |fund_class|
+        next if fund_class[:isin].nil? or fund_class[:currency].nil?
+        currency_code = six_currency.find_code(fund_class[:currency])
+        valor_number = identify_instrument(fund_class[:isin]).valor
+        markets_ids = fetch_markets(valor_number, currency_code)
+        instruments = SIX::InstrumentList.new(valor_number, currency_code, markets_ids)
+        prices = fetch_prices(instruments)
+        result[fund_class[:id]] = SIX::PriceList.new(prices).most_updated
+      end
+      result
+    end
+
+    def fetch_markets(valor_number, currency_code)
+      return nil if valor_number.nil? || currency_code.nil?
+      data = request('searchListings', search: "valor=#{valor_number}", Cur: currency_code)
+      data['ILS']['ISD'][0]['IS'].map(&:first).map(&:last)
+    end
+
+    def fetch_prices(instruments)
+      instruments_params = instruments.price_request_params
+      params = instruments_params.merge({
+        ml: 'avail',
+        pk: '12,0,0',  #12,0,0 means return price value only according to table 701
+        psk: 'none',
+        })
+      request('getListingData', params)['IL']['I']
+    end
+
+
 
     private
 
@@ -56,7 +72,6 @@ module SIX
     def get(request_type, method, query)
       query        = format(query.merge(method: method, ui: @ui, id: @id))
       raw_response = self.class.get("/apid/#{request_type}", query: query)
-
       SIX::Response.new(raw_response)
     end
 
