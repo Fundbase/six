@@ -4,7 +4,7 @@ module SIX
 
     base_uri 'https://apidintegra.tkfweb.com'
 
-    def initialize(ui, pwd)
+    def initialize(ui = ENV['SIX_UI'], pwd = ENV['SIX_PWD'])
       @ui = ui
       @id = login(pwd)
     end
@@ -12,11 +12,12 @@ module SIX
 
     def identify_instrument(isin)
       response = request('getListingID', ks: 'ISIN', k1: isin)['LCVL']['LCV']
-      response['f'].to_i == 1 ? SIX::Instrument.new(response['l']) : nil
-    end
-
-    def method_missing(method, query = {})
-      request(method.to_s.camelize(:lower), query)
+      if response['f'].to_i == 1
+        SIX::Instrument.new(response['l'])
+      else
+        puts "ISIN #{isin} Not Found!"
+        nil
+      end
     end
 
     # rubocop:disable Metrics/ParameterLists, Metrics/MethodLength
@@ -26,8 +27,10 @@ module SIX
       six_currency = SIX::Currency.new
       fund_classes.each do |fund_class|
         next if fund_class[:isin].nil? or fund_class[:currency].nil?
-        currency_code = six_currency.find_code(fund_class[:currency])
-        valor_number = identify_instrument(fund_class[:isin]).valor
+        currency_code = six_currency.find_code(fund_class[:currency].upcase)
+        instrument_id = identify_instrument(fund_class[:isin])
+        next if instrument_id.nil?
+        valor_number = instrument_id.valor
         markets_ids = fetch_markets(valor_number, currency_code)
         instruments_list = SIX::InstrumentList.new
         instruments_list.generate_instruments(valor_number, currency_code, markets_ids)
@@ -44,7 +47,7 @@ module SIX
     def fetch_markets(valor_number, currency_code)
       return nil if valor_number.nil? || currency_code.nil?
       data = request('searchListings', search: "valor=#{valor_number}", Cur: currency_code)
-      data['ILS']['ISD'][0]['IS'].map(&:first).map(&:last)
+      Array.wrap(data['ILS']['ISD'][0]['IS']).map(&:first).map(&:last)
     end
 
     def fetch_prices(instruments)

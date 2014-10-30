@@ -3,7 +3,7 @@ module SIX
     attr_accessor :prices
 
     def initialize(data)
-      @prices = data.map{ |item| Price.new(item['P'], item['k']) }
+      @prices = Array.wrap(data).map{ |item| Price.new(item['P'], item['k']) }
     end
 
     def most_updated
