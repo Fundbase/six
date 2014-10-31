@@ -7,7 +7,12 @@ module SIX
     end
 
     def find_code(currency)
-      @codes[currency]
+      code = @codes[currency]
+      if code.nil?
+        raise Exception, "Couldn't find Code number for Currency #{currency} on SIX" if code.nil?
+      else
+        code
+      end
     end
 
   end

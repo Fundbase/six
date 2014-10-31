@@ -3,10 +3,12 @@ module SIX
     include HTTParty
 
     base_uri 'https://apidintegra.tkfweb.com'
+    attr_accessor :exceptions
 
     def initialize(ui = ENV['SIX_UI'], pwd = ENV['SIX_PWD'])
       @ui = ui
       @id = login(pwd)
+      @exceptions = []
     end
 
 
@@ -15,8 +17,7 @@ module SIX
       if response['f'].to_i == 1
         SIX::Instrument.new(response['l'])
       else
-        puts "ISIN #{isin} Not Found!"
-        nil
+        raise Exception, "ISIN #{isin} isn't available on SIX listings"
       end
     end
 
@@ -26,26 +27,43 @@ module SIX
       result = {}
       six_currency = SIX::Currency.new
       fund_classes.each do |fund_class|
-        next if fund_class[:isin].nil? or fund_class[:currency].nil?
+        begin
+        verify_isin_currency_existence(fund_class[:currency], fund_class[:currency])
         currency_code = six_currency.find_code(fund_class[:currency].upcase)
         instrument_id = identify_instrument(fund_class[:isin])
-        next if instrument_id.nil?
         valor_number = instrument_id.valor
         markets_ids = fetch_markets(valor_number, currency_code)
         instruments_list = SIX::InstrumentList.new
         instruments_list.generate_instruments(valor_number, currency_code, markets_ids)
         result[fund_class[:id]] = fetch_prices(instruments_list).most_updated
+
+        rescue Exception => e
+          @exceptions << { fund_class_id: fund_class, message: e.message }
+          next
+        end
       end
       result
     end
 
-    def update_prices_with_instruments(instruments_text)
-      instruments = SIX::InstrumentList.new(instruments_text)
-      fetch_prices(instruments)
+    def fetch_prices_using_instruments(funds_with_instrument_id)
+      result = {}
+      instrument_ids = funds_with_instrument_id.map{ |fund_class| fund_class[:instrument_identifier]}
+      instruments = SIX::InstrumentList.new(instrument_ids)
+      prices = fetch_prices(instruments).prices
+      funds_with_instrument_id.map.with_index do |fund_class, index|
+        result[fund_class[:id]] = prices[index]
+      end
+      result
     end
 
+    def verify_isin_currency_existence(isin, currency)
+      if isin.blank? or currency.blank?
+        raise Exception, "ISIN: #{isin} or Currency: #{currency} is empty!"
+      end
+    end
+
+
     def fetch_markets(valor_number, currency_code)
-      return nil if valor_number.nil? || currency_code.nil?
       data = request('searchListings', search: "valor=#{valor_number}", Cur: currency_code)
       Array.wrap(data['ILS']['ISD'][0]['IS']).map(&:first).map(&:last)
     end
