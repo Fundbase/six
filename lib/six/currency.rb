@@ -6,6 +6,7 @@ module SIX
       @codes = YAML.load_file(config_path)['currency']
     end
 
+    # returns String
     def find_code(currency)
       code = @codes[currency]
       if code.nil?

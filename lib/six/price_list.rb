@@ -6,6 +6,7 @@ module SIX
       @prices = Array.wrap(data).map{ |item| Price.new(item['P'], item['k']) }
     end
 
+    # returns Price object
     def most_updated
       uptodate_price = @prices.max_by{ |price| price.date.to_i }
     end

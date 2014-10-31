@@ -11,7 +11,7 @@ module SIX
       @exceptions = []
     end
 
-
+    # returns Instrument Object
     def identify_instrument(isin)
       response = request('getListingID', ks: 'ISIN', k1: isin)['LCVL']['LCV']
       if response['f'].to_i == 1
@@ -23,6 +23,7 @@ module SIX
 
     # rubocop:disable Metrics/ParameterLists, Metrics/MethodLength
 
+    #returns a Hash with following thos format {fund_id: price_object}
     def first_time_retreive_prices(fund_classes)
       result = {}
       six_currency = SIX::Currency.new
@@ -45,6 +46,7 @@ module SIX
       result
     end
 
+    #returns a Hash with following thos format {fund_id: price_object}
     def fetch_prices_using_instruments(funds_with_instrument_id)
       result = {}
       instrument_ids = funds_with_instrument_id.map{ |fund_class| fund_class[:instrument_identifier]}
@@ -62,12 +64,13 @@ module SIX
       end
     end
 
-
+    # returns array of strings(markets ids)
     def fetch_markets(valor_number, currency_code)
       data = request('searchListings', search: "valor=#{valor_number}", Cur: currency_code)
       Array.wrap(data['ILS']['ISD'][0]['IS']).map(&:first).map(&:last)
     end
 
+    # returns PriceList Object
     def fetch_prices(instruments)
       instruments_params = instruments.price_request_params
       params = instruments_params.merge({
