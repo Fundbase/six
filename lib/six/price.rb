@@ -8,11 +8,11 @@ module SIX
     end
 
     def value
-      data.fetch('v', nil)
+      data['v']
     end
 
     def date
-      data.fetch('d', nil)
+      data['d']
     end
   end
 end

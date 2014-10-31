@@ -23,7 +23,7 @@ module SIX
 
     # rubocop:disable Metrics/ParameterLists, Metrics/MethodLength
 
-    #returns a Hash with following thos format {fund_id: price_object}
+    #returns a Hash with following this format {fund_id: price_object}
     def first_time_retreive_prices(fund_classes)
       result = {}
       six_currency = SIX::Currency.new
