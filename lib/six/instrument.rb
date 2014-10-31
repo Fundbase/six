@@ -1,13 +1,19 @@
 module SIX
-  Instrument = Struct.new(:data) do
+  class Instrument
     include Errorable
 
-    def history_list
-      HistoryList.new(data['HL'])
+    attr_accessor :value
+
+    METHODS_NAMES = ['valor', 'exchange', 'currency']
+
+    def initialize(value)
+      @value = value
     end
 
-    def identifier
-      data['k']
+    METHODS_NAMES.each_with_index do |method_name, index|
+      define_method(method_name) do
+        value.split(',')[index]
+      end
     end
 
     private
