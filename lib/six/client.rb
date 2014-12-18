@@ -2,7 +2,7 @@ module SIX
   class Client
     include HTTParty
 
-    base_uri 'https://apidintegra.tkfweb.com'
+    base_uri 'http://apidintegra.tkfweb.com'
     attr_accessor :exceptions
 
     def initialize(ui = ENV['SIX_UI'], pwd = ENV['SIX_PWD'])
