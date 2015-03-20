@@ -61,7 +61,8 @@ module SIX
     def fetch_mini_historical_prices(security_with_instrument_id)
       instrument_ids = security_with_instrument_id.map{ |fund_class| fund_class[:instrument_identifier]}
       instruments = SIX::InstrumentList.new(instrument_ids)
-      prices = fetch_prices(instruments, '12,0,0;12,0,1;12,0,2;12,0,3')
+      prices_list = fetch_prices(instruments, '12,0,0;12,0,1;12,0,2;12,0,3')
+      prices_list.prices
     end
 
     def verify_isin_currency_existence(isin, currency)
