@@ -58,6 +58,13 @@ module SIX
       result
     end
 
+    def fetch_mini_historical_prices(security_with_instrument_id)
+      instrument_ids = security_with_instrument_id.map{ |fund_class| fund_class[:instrument_identifier]}
+      instruments = SIX::InstrumentList.new(instrument_ids)
+      prices_list = fetch_prices(instruments, '12,0,0;12,0,1;12,0,2;12,0,3')
+      prices_list.prices
+    end
+
     def verify_isin_currency_existence(isin, currency)
       if isin.blank? or currency.blank?
         raise Exception, "ISIN: #{isin} or Currency: #{currency} is empty!"
@@ -71,11 +78,11 @@ module SIX
     end
 
     # returns PriceList Object
-    def fetch_prices(instruments)
+    def fetch_prices(instruments, pk= '12,0,0')
       instruments_params = instruments.price_request_params
       params = instruments_params.merge({
         ml: 'avail',
-        pk: '12,0,0',  #12,0,0 means return price value only according to table 701
+        pk: pk,  #12,0,0 means return price value only according to table 701
         psk: 'none',
         })
       prices = request('getListingData', params)['IL']['I']
