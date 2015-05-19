@@ -47,22 +47,21 @@ module SIX
     end
 
     #returns a Hash with following thos format {fund_id: price_object}
-    def fetch_prices_using_instruments(funds_with_instrument_id)
+    def fetch_prices_using_instruments(securities_with_instrument_id, historical: false)
       result = {}
-      instrument_ids = funds_with_instrument_id.map{ |fund_class| fund_class[:instrument_identifier]}
+      instrument_ids = securities_with_instrument_id.map{ |security| security[:instrument_identifier]}
       instruments = SIX::InstrumentList.new(instrument_ids)
-      prices = fetch_prices(instruments).prices
-      funds_with_instrument_id.map.with_index do |fund_class, index|
-        result[fund_class[:id]] = prices[index]
+
+      prices = unless historical
+        fetch_prices(instruments).prices
+      else
+        fetch_prices(instruments, '12,0,0;12,0,1;12,0,2;12,0,3').prices
+      end
+
+      securities_with_instrument_id.map.with_index do |security, index|
+        result[security[:id]] = prices[index]
       end
       result
-    end
-
-    def fetch_mini_historical_prices(security_with_instrument_id)
-      instrument_ids = security_with_instrument_id.map{ |fund_class| fund_class[:instrument_identifier]}
-      instruments = SIX::InstrumentList.new(instrument_ids)
-      prices_list = fetch_prices(instruments, '12,0,0;12,0,1;12,0,2;12,0,3')
-      prices_list.prices
     end
 
     def verify_isin_currency_existence(isin, currency)
