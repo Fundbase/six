@@ -17,7 +17,7 @@ module SIX
       if response['f'].to_i == 1
         SIX::Instrument.new(response['l'])
       else
-        raise Exception, "ISIN #{isin} isn't available on SIX listings"
+        raise ArgumentError, "ISIN #{isin} isn't available on SIX listings"
       end
     end
 
@@ -37,7 +37,7 @@ module SIX
           instruments_list = SIX::InstrumentList.new
           instruments_list.generate_instruments(valor_number, currency_code, markets_ids)
           result[fund_class[:id]] = fetch_prices(instruments_list).most_updated
-        rescue Exception => e
+        rescue => e
           @exceptions << { fund_class_id: fund_class, message: e.message }
           next
         end
@@ -65,7 +65,7 @@ module SIX
 
     def verify_isin_currency_existence(isin, currency)
       if isin.blank? or currency.blank?
-        raise Exception, "ISIN: #{isin} or Currency: #{currency} is empty!"
+        raise ArgumentError, "ISIN: #{isin} or Currency: #{currency} is empty!"
       end
     end
 
