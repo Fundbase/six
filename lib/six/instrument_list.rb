@@ -2,10 +2,8 @@ module SIX
   class InstrumentList
     attr_accessor :instruments
 
-    def initialize(instruments_text = nil)
-      if instruments_text
-        @instruments = instruments_text.map{ |instrument| Instrument.new(instrument) }
-      end
+    def initialize(instruments = nil)
+      @instruments = instruments.map { |instrument| Instrument.new(instrument) } if instruments
     end
 
     # returns Array of Instrument
@@ -17,7 +15,15 @@ module SIX
 
     # returns Array of Array. where each Array contains [ik_index: instrument_id]
     def price_request_params
-      @instruments.map.with_index { |instrument, index| ["ik#{index+1}", instrument.value] }.to_h
+      @instruments.each.with_object({}).with_index do |(instrument, result), index|
+        result["ik#{index+1}"] = sanitize_identifier(instrument.value)
+      end
+    end
+
+    private
+
+    def sanitize_identifier(identifier)
+      identifier.gsub(/[^\d,]/, '')
     end
   end
 end
