@@ -29,15 +29,14 @@ module SIX
       six_currency = SIX::Currency.new
       fund_classes.each do |fund_class|
         begin
-        verify_isin_currency_existence(fund_class[:currency], fund_class[:currency])
-        currency_code = six_currency.find_code(fund_class[:currency].upcase)
-        instrument_id = identify_instrument(fund_class[:isin])
-        valor_number = instrument_id.valor
-        markets_ids = fetch_markets(valor_number, currency_code)
-        instruments_list = SIX::InstrumentList.new
-        instruments_list.generate_instruments(valor_number, currency_code, markets_ids)
-        result[fund_class[:id]] = fetch_prices(instruments_list).most_updated
-
+          verify_isin_currency_existence(fund_class[:currency], fund_class[:currency])
+          currency_code = six_currency.find_code(fund_class[:currency].upcase)
+          instrument_id = identify_instrument(fund_class[:isin])
+          valor_number = instrument_id.valor
+          markets_ids = fetch_markets(valor_number, currency_code)
+          instruments_list = SIX::InstrumentList.new
+          instruments_list.generate_instruments(valor_number, currency_code, markets_ids)
+          result[fund_class[:id]] = fetch_prices(instruments_list).most_updated
         rescue Exception => e
           @exceptions << { fund_class_id: fund_class, message: e.message }
           next
@@ -87,8 +86,6 @@ module SIX
       prices = request('getListingData', params)['IL']['I']
       SIX::PriceList.new(prices)
     end
-
-
 
     private
 
