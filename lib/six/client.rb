@@ -86,7 +86,7 @@ module SIX
         })
       response = request('getListingData', params)
       response.errors.each do |error|
-        @exceptions << { fund_class_id: nil, message: "SIX returned an error", status: error['k'], value: error['v'] }
+        @exceptions << { fund_class_id: nil, message: 'SIX returned an error', status: error['k'], value: error['v'] }
       end if response.errors?
       SIX::PriceList.new(response['IL']['I'])
     end
