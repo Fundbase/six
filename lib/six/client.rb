@@ -24,7 +24,7 @@ module SIX
     # rubocop:disable Metrics/ParameterLists, Metrics/MethodLength
 
     #returns a Hash with following this format {fund_id: price_object}
-    def first_time_retreive_prices(fund_classes)
+    def first_time_retrieve_prices(fund_classes)
       result = {}
       six_currency = SIX::Currency.new
       fund_classes.each do |fund_class|
@@ -47,8 +47,7 @@ module SIX
 
     #returns a Hash with following thos format {fund_id: price_object}
     def fetch_prices_using_instruments(securities_with_instrument_id, historical: false)
-      result = {}
-      instrument_ids = securities_with_instrument_id.map{ |security| security[:instrument_identifier]}
+      instrument_ids = securities_with_instrument_id.map{ |security| security[:instrument_identifier] }
       instruments = SIX::InstrumentList.new(instrument_ids)
 
       prices = unless historical
@@ -57,16 +56,18 @@ module SIX
         fetch_prices(instruments, '12,0,0;12,0,1;12,0,2;12,0,3').prices
       end
 
-      securities_with_instrument_id.map.with_index do |security, index|
-        result[security[:id]] = prices[index]
+      securities_with_instrument_id.each.with_object({}).with_index do |(security, result), index|
+        if prices[index].value?
+          result[security[:id]] = prices[index]
+        else
+          @exceptions << { fund_class_id: security, message: "SIX didn't return a price", status: prices[index].status }
+        end
       end
-      result
     end
 
     def verify_isin_currency_existence(isin, currency)
-      if isin.blank? or currency.blank?
-        raise ArgumentError, "ISIN: #{isin} or Currency: #{currency} is empty!"
-      end
+      raise ArgumentError, 'ISIN is empty' if isin.blank?
+      raise ArgumentError, 'Currency is empty' if currency.blank?
     end
 
     # returns array of strings(markets ids)
@@ -83,8 +84,11 @@ module SIX
         pk: pk,  #12,0,0 means return price value only according to table 701
         psk: 'none',
         })
-      prices = request('getListingData', params)['IL']['I']
-      SIX::PriceList.new(prices)
+      response = request('getListingData', params)
+      response.errors.each do |error|
+        @exceptions << { fund_class_id: nil, message: "SIX returned an error", status: error['k'], value: error['v'] }
+      end if response.errors?
+      SIX::PriceList.new(response['IL']['I'])
     end
 
     private
@@ -109,15 +113,9 @@ module SIX
     end
 
     def format(query)
-      query.map do |key, value|
-        formatted = case value
-                    when Time, Date, DateTime
-                      value.strftime('%d.%m.%Y')
-                    else
-                      value
-                    end
-        [key, formatted]
-      end.to_h
+      query.each.with_object({}) do |(key, value), result|
+        result[key] = value.try(:strftime, '%d.%m.%Y') || value
+      end
     end
   end
 end
