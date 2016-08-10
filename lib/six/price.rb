@@ -11,8 +11,16 @@ module SIX
       data['v']
     end
 
+    def value?
+      value.present?
+    end
+
     def date
       data['d']
+    end
+
+    def status
+      data['s']
     end
   end
 end
