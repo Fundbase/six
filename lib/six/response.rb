@@ -11,7 +11,6 @@ module SIX
 
     def validate!
       fail SIX::Error, body if code != 200
-      raise_error! if error?
     end
 
     def [](key)
