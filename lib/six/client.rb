@@ -57,7 +57,7 @@ module SIX
       end
 
       securities_with_instrument_id.each.with_object({}).with_index do |(security, result), index|
-        if prices[index].value?
+        if !prices[index].respond_to?(:value?) || prices[index].value?
           result[security[:id]] = prices[index]
         else
           @exceptions << { fund_class_id: security, message: "SIX didn't return a price", status: prices[index].status }
