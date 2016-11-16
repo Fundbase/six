@@ -9,7 +9,7 @@ module SIX
     # returns String
     def find_code(currency)
       code = @codes[currency]
-      raise Exception, "Couldn't find Code number for Currency #{currency} on SIX" if code.nil?
+      raise "Couldn't find Code number for Currency #{currency} on SIX" if code.nil?
       code
     end
 
