@@ -7,7 +7,7 @@ tolerance.
 
 Add this line to your application's Gemfile:
 
-    gem 'six', '~> 0.0.1'
+    gem 'six', '~> 0.3.1'
 
 And then execute:
 
